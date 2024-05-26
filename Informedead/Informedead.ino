@@ -1,5 +1,7 @@
 
-const String deviceNum = "2";
+//Apocalypse!
+
+const String deviceNum = "1";
 
 // if deviceNum == 1
 //#define LCD
@@ -74,6 +76,7 @@ void setup() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
+  display.print("test");
   #endif
 
   // start server host
@@ -197,6 +200,7 @@ String getNextInput() {
     delay(10);
   }
 
+
   return String((char)e.bit.KEY);
 }
 
@@ -204,24 +208,26 @@ void networkTick() {
   WiFiClient client = server.available();
 
   if (client) {
-    String message = "";
+    String messageRecieve = "";
     Serial.println("Recieving message...");
-    while (client.connected()) {
-      while (client.available()) {
-        char c = client.read();
-        message += String(c);
-      }
+
+  while (client.connected()) {
+    while (client.available()) {
+      char c = client.read();
+      messageRecieve += String(c);
     }
+  }
+    
 
     client.stop();
     printToDisplay("Incoming message:");
     if (hasKeypad) {
       delay(2000);
-      printToDisplay(message);
+      printToDisplay(messageRecieve);
       getNextInput();
     }
     else {
-      printToDisplay(message);
+      printToDisplay(messageRecieve);
     }
   }
 }
@@ -252,6 +258,7 @@ void sendTo(String device, String message) {
       Serial.println("Sending...");
       // Send data to server
       client.println(message);
+      client.stop();
       printToDisplay("Sent!");
       message = "";
       getNextInput();
@@ -263,6 +270,7 @@ void sendTo(String device, String message) {
 
 #ifdef LCD
 void printToDisplay(String message) {
+  Serial.println(message);
   lcd.clear();
   lcd.setCursor(0, 0);
   if (message.length() > 16) {
